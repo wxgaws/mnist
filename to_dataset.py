@@ -2,6 +2,12 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 
+image_size = 784
+shuffle_size = 100
+batch_size = 20
+num_test_example = 10000
+steps_per_epoch = int(num_test_example / batch_size)
+
 
 def create_int_feature(values):
     feature = tf.train.Feature(int64_list=tf.train.Int64List(value=list(values)))
@@ -47,6 +53,29 @@ def _to_dataset(path_out, num_examples, images, labels, pixels):
 
     writer.close()
     print("**_to_dataset(): finish")
+
+
+def read_dataset(path):
+    dataset = tf.data.TFRecordDataset(path)
+    dataset = dataset.repeat()
+    dataset = dataset.shuffle(buffer_size=shuffle_size)
+    dataset = dataset.map(_decode_record)
+    dataset = dataset.batch(batch_size=batch_size)
+
+    return dataset
+
+
+def _decode_record(record):
+    name_to_features = {
+        "pixels": tf.FixedLenFeature([1], tf.int64),
+        "images": tf.FixedLenFeature([image_size], tf.int64),
+        "label": tf.FixedLenFeature([1], tf.int64),
+    }
+    example = tf.parse_single_example(record, name_to_features)
+    images = tf.cast(example["images"], tf.float32) / 255.
+    label = tf.one_hot(example["label"][0], depth=10, dtype=tf.float32)
+
+    return images, label
 
 
 if __name__ == '__main__':

@@ -1,12 +1,16 @@
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
+import os
 
 image_size = 784
 shuffle_size = 100
 batch_size = 20
-num_test_example = 10000
-steps_per_epoch = int(num_test_example / batch_size)
+num_example_train = 55000
+num_example_test = 10000
+steps_per_epoch_train = int(num_example_train / batch_size)
+steps_per_epoch_test = int(num_example_test / batch_size)
+dir_main = os.path.abspath('.')
 
 
 def create_int_feature(values):
@@ -79,8 +83,7 @@ def _decode_record(record):
 
 
 if __name__ == '__main__':
-    dir = "D:/work/program/python/tf/minist"
-    path_in = "./data/zip"
-    path_out_train = dir + "/data/dataset/mnist.train.tfrecord"
-    path_out_test = dir + "/data/dataset/mnist.test.tfrecord"
+    path_in = os.path.join(dir_main, "data/zip")
+    path_out_train = os.path.join(dir_main, "data/dataset/mnist.train.tfrecord")
+    path_out_test = os.path.join(dir_main, "data/dataset/mnist.test.tfrecord")
     to_dataset(path_in, path_out_train, path_out_test)
